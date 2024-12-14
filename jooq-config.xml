@@ -1,0 +1,18 @@
+<configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.18.0.xsd">
+    <jdbc>
+        <driver>org.postgresql.Driver</driver>
+        <url>jdbc:postgresql://localhost:5432/can_they_enter_java</url>
+        <user>user</user>
+        <password>password</password>
+    </jdbc>
+    <generator>
+        <database>
+            <name>org.jooq.meta.postgres.PostgresDatabase</name>
+            <inputSchema>public</inputSchema>
+        </database>
+        <target>
+            <packageName>org.canthey.jooq.generated</packageName>
+            <directory>./src/main/java</directory>
+        </target>
+    </generator>
+</configuration>
