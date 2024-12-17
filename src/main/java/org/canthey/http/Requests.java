@@ -3,17 +3,18 @@ package org.canthey.http;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.canthey.databases.Database;
-import org.canthey.databases.InMemoryDB;
+import org.canthey.databases.PostgresDB;
 import org.canthey.jooq.generated.tables.records.UsersRecord;
 import org.canthey.utils.PasswordUtils;
 import spark.Request;
 import spark.Response;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Requests {
 
@@ -22,7 +23,7 @@ public class Requests {
     private static final int UNAUTHORIZED_CODE = 401;
 
     private static final Logger logger = LogManager.getLogger(Requests.class);
-    private static final Database db = new InMemoryDB();
+    private static final Database db = new PostgresDB();
 
     public static String create_user(Request request, Response response) {
         String log = "Entering create user!";
@@ -50,28 +51,46 @@ public class Requests {
 
             String hashedPassword = PasswordUtils.hashPassword(password);
 
-            log = "Creating user " + userName + "!";
-            logger.debug(log);
+            List<UsersRecord> usersWithSameUserName = db.queryUser(userName);
+            UsersRecord us = null;
 
-            UsersRecord us = db.insertUser(userName, hashedPassword);
+            if (usersWithSameUserName.isEmpty()) {
+                log = "Creating user " + userName + "!";
+                logger.debug(log);
 
-            log =
-                "Created user id: " +
-                us.getId() +
-                "; user name: " +
-                us.getUsername() +
-                "; password hash: " +
-                us.getPassword() +
-                "!";
-            logger.debug(log);
+                us = db.insertUser(userName, hashedPassword);
+
+                log =
+                        "Created user id: " +
+                                us.getId() +
+                                "; user name: " +
+                                us.getUsername() +
+                                "; password hash: " +
+                                us.getPassword() +
+                                "!";
+                logger.debug(log);
+                response.status(OK_CODE);
+            } else {
+                us = usersWithSameUserName.stream().findFirst().get();
+                log =
+                        "User already created with user id: " +
+                                us.getId() +
+                                "; user name: " +
+                                us.getUsername() +
+                                "; password hash: " +
+                                us.getPassword() +
+                                "!";
+                logger.debug(log);
+                response.status(ERROR_CODE);
+            }
 
             Map<String, String> result = new HashMap<>();
             result.put("id", us.getId().toString());
             result.put("username", us.getUsername());
 
             jsonResult = objectMapper
-                .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(result);
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(result);
             response.type("application/json");
         } catch (JsonProcessingException e) {
             logger.error("Error reading request body!");
@@ -120,16 +139,15 @@ public class Requests {
         List<UsersRecord> usersWithSameUserNameList = db.queryUser(userName);
         final String finalPassword = password;
         long usersWithSameUserNameAndPassword = usersWithSameUserNameList
-            .stream()
-            .filter(us ->
-                PasswordUtils.verifyPassword(finalPassword, us.getPassword())
-            )
-            .count();
+                .stream()
+                .filter(us ->
+                        PasswordUtils.verifyPassword(finalPassword, us.getPassword())
+                )
+                .count();
         if (usersWithSameUserNameAndPassword == 1) {
             response.status(OK_CODE);
             return "{\"message\":\"Logged in successfully!\"}";
-        }
-        else {
+        } else {
             response.status(UNAUTHORIZED_CODE);
             return "{\"message\":\"Log in credentials are wrong!\"}";
         }
