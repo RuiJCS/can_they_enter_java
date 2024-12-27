@@ -15,6 +15,8 @@
         <slf4j.version>2.24.2</slf4j.version>
         <jackson.version>2.18.2</jackson.version>
         <jooq.version>3.17.0</jooq.version>
+        <junit.version>5.9.1</junit.version>
+        <mockito.version>5.5.0</mockito.version>
     </properties>
 
     <build>
@@ -90,6 +92,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>5.2.0</version>
         </dependency>
 
         <dependency>

@@ -7,11 +7,12 @@ Features implemented/ to be implemented for the login system:
 
 - [x] Server routing: done using spark java;
 - [x] Password hashing: done using bcrypt;
-- [x] Database storing and querying: done using jooq (for postgresql) or a simple hashmap for easy
-  setup;
+- [x] Database storing and querying;
 - [x] Json processing: done using jackson;
 - [x] REST request processing and handling: done using spark java and all the other features
   previously mentioned;
-- [ ] Redis Integration;
+- [ ] Redis Integration:
+  - [x] as an in memory database;
+  - [ ] as a cache;
 - [ ] Session Management;
 - [ ] Cookie Handling;
