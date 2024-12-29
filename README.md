@@ -14,5 +14,6 @@ Features implemented/ to be implemented for the login system:
 - [ ] Redis Integration:
   - [x] as an in memory database;
   - [ ] as a cache;
+  - [ ] close the connection (I think i'll need dependency injection);
 - [ ] Session Management;
 - [ ] Cookie Handling;
